@@ -74,6 +74,10 @@ export default function ItemDetailPage() {
                         buyer_email: buyerEmail,
                         seller_email: listing.seller_email,
                         message,
+                        title: listing.title,
+                        price: listing.price,
+                        location: listing.location,
+                        description: listing.description,
                     }),
                 });
 

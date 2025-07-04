@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer'
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end()
 
-  const { listing_id, buyer_email, seller_email, message } = req.body
+  const { listing_id, buyer_email, seller_email, message, title, price, location, description } = req.body;
 
   // Configure your SMTP transport (example: Gmail, Mailgun, etc.)
   const transporter = nodemailer.createTransport({
@@ -28,13 +28,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     </div>
   `;
 
+  // Product info block (no image)
+  const productInfo = `
+    <div style="margin: 12px 0; padding: 12px; background: #f7f7fa; border-radius: 8px; border: 1px solid #e4e6eb;">
+      <div style="font-weight: bold; font-size: 16px;">${title}</div>
+      <div style="color: #1877f2; font-weight: bold; margin-bottom: 4px;">$${price}</div>
+      <div style="font-size: 14px; color: #555;">${location}</div>
+      <div style="font-size: 13px; color: #888; margin-bottom: 6px;">${description}</div>
+    </div>
+  `;
+
   // Email to seller
   await transporter.sendMail({
     from: 'Marketplace <noreply@yourdomain.com>',
     to: seller_email,
     subject: 'You have a new message on Marketplace',
     html: fbStyle(
-      `You received a new message for your listing:<br><div style="background:#f0f2f5;border-radius:8px;padding:12px 16px;margin:12px 0;font-size:15px;border:1px solid #e4e6eb;">${message}</div><div style="margin-top:8px;">From: <b>${buyer_email}</b></div>`,
+      `You received a new message for your listing:<br>${productInfo}<br><div style="background:#f0f2f5;border-radius:8px;padding:12px 16px;margin:12px 0;font-size:15px;border:1px solid #e4e6eb;">${message}</div><div style="margin-top:8px;">From: <b>${buyer_email}</b></div>`,
       buyer_email
     ),
   })
@@ -45,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     to: buyer_email,
     subject: 'Your message was sent',
     html: fbStyle(
-      `Your message to the seller was received. They will reply soon.<br><div style="background:#f0f2f5;border-radius:8px;padding:12px 16px;margin:12px 0;font-size:15px;border:1px solid #e4e6eb;">${message}</div>`
+      `Your message to the seller was received. They will reply soon.<br>${productInfo}<br><div style="background:#f0f2f5;border-radius:8px;padding:12px 16px;margin:12px 0;font-size:15px;border:1px solid #e4e6eb;">${message}</div>`
     ),
   })
 
